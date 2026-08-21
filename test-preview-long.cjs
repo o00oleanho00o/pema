@@ -18,7 +18,7 @@ function assertA5Portrait(pdf) {
 (async () => {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
-  const items = Array.from({ length: 10 }, (_, index) => ({
+  const items = Array.from({ length: 14 }, (_, index) => ({
     sourceName: `Sản phẩm ${index + 1} mô tả dài 40ml với nhiều thông tin bổ sung`,
     quantity: "1",
     unit: "Hộp",
@@ -42,7 +42,7 @@ function assertA5Portrait(pdf) {
     };
   }, { payload: model });
   await page.goto("file:///E:/codex/indon/preview.html#long-test");
-  await page.waitForFunction(() => document.querySelectorAll(".print-item").length === 10);
+  await page.waitForFunction(() => document.querySelectorAll(".print-item").length === 14);
 
   const layout = await page.locator(".print-page").evaluate((node) => {
     const pageBox = node.getBoundingClientRect();
@@ -58,7 +58,7 @@ function assertA5Portrait(pdf) {
       footerBottom: footer.bottom - pageBox.top
     };
   });
-  assert.strictEqual(layout.items, 10);
+  assert.strictEqual(layout.items, 14);
   assert.ok(layout.height > 793, `Long preview should grow beyond the 210mm minimum instead of clipping: ${JSON.stringify(layout)}`);
   assert.strictEqual(layout.scrollHeight, layout.clientHeight, "The paper canvas itself should expand to contain long content");
   assert.ok(layout.lastItemBottom <= layout.footerTop + 1, `The footer should follow the final item: ${JSON.stringify(layout)}`);
