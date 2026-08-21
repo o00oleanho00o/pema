@@ -170,6 +170,10 @@ async function filteredPdf(page, filter) {
   const leScroll = await lePreview.locator('[data-doc="prescription"] .section-scroll').evaluate((node) => ({ clientHeight: node.clientHeight, scrollHeight: node.scrollHeight }));
   assert.ok(leScroll.scrollHeight > leScroll.clientHeight, `Expected the clinic-like viewport to scroll: ${JSON.stringify(leScroll)}`);
   assert.ok((await lePreview.locator('[data-doc="consultation"] .patient-note').textContent()).includes("Chú ý ngủ sớm"));
+  assert.strictEqual(
+    (await lePreview.locator('[data-doc="consultation"] .footer-heading').innerText()).replace(/\s+/g, " ").trim(),
+    "Dặn dò: Chú ý ngủ sớm, hạn chế đồ ngọt đồ ăn cay nóng."
+  );
   assert.ok((await lePreview.locator('[data-doc="consultation"] .notes').textContent()).includes("Quý khách vui lòng đặt lịch hẹn"));
   await lePreview.locator("#consultationView").click();
   assert.strictEqual(await lePreview.locator(".document-set.is-active").getAttribute("data-doc"), "consultation");
@@ -177,7 +181,7 @@ async function filteredPdf(page, filter) {
   const leConsultationPdf = await filteredPdf(lePreview, "consultation");
   assertA5Portrait(lePrescriptionPdf);
   assertA5Portrait(leConsultationPdf);
-  assert.ok(pageCount(lePrescriptionPdf) >= 1, "The Lê Quốc Chượng prescription should produce one or more portrait A5 pages");
+  assert.strictEqual(pageCount(lePrescriptionPdf), 1, "The five-item Lê Quốc Chượng prescription and footer should fit on one A5 page");
   assert.strictEqual(pageCount(leConsultationPdf), 1, "The two-item Lê Quốc Chượng consultation should fit on one portrait A5 page");
   assert.ok((await pdfText(lePrescriptionPdf)).includes("VERTUCID"));
   assert.ok((await pdfText(leConsultationPdf)).includes("Neostrata"));
@@ -207,6 +211,57 @@ async function filteredPdf(page, filter) {
   const compactText = await pdfText(compactPdf);
   assert.ok(compactText.includes("Nibean Itraconazol") && compactText.includes("VERTUCID"));
   await compactPreview.close();
+
+  const sevenModel = {
+    ...compactModel,
+    patient: { ...compactModel.patient, name: "Bảy sản phẩm" },
+    items: Array.from({ length: 7 }, (_, index) => ({
+      sourceName: `Sản phẩm ${index + 1}`,
+      quantity: "1",
+      unit: "Hộp",
+      usage: "Dùng sáng và tối theo hướng dẫn",
+      outputType: "PRESCRIPTION",
+      matchStatus: "EXACT_NAME"
+    }))
+  };
+  const sevenPreview = await openPreview(browser, sevenModel, "seven-regression");
+  const sevenPdf = await filteredPdf(sevenPreview, "prescription");
+  assertA5Portrait(sevenPdf);
+  const sevenPages = await pdfPageTexts(sevenPdf);
+  assert.ok(sevenPages[0].includes("Sản phẩm 7"), "Seven compact items should remain on the first A5 page");
+  await sevenPreview.close();
+
+  const sevenLongModel = { ...leModel, items: leItems.map((item) => ({ ...item, outputType: "PRESCRIPTION", matchStatus: "MANUAL" })) };
+  const sevenLongPreview = await openPreview(browser, sevenLongModel, "seven-long-regression");
+  await sevenLongPreview.emulateMedia({ media: "print" });
+  const sevenLongPrintDensity = await sevenLongPreview.locator('[data-doc="prescription"] .print-page').evaluate((page) => ({
+    fontSize: getComputedStyle(page).fontSize,
+    lineHeight: getComputedStyle(page).lineHeight,
+    padding: getComputedStyle(page).padding,
+    footer: (() => {
+      const footer = page.querySelector(".print-footer").getBoundingClientRect();
+      const heading = page.querySelector(".footer-heading").getBoundingClientRect();
+      const notes = page.querySelector(".notes").getBoundingClientRect();
+      const qr = page.querySelector(".qr-cell").getBoundingClientRect();
+      const signature = page.querySelector(".signature").getBoundingClientRect();
+      const qrImage = page.querySelector(".qr-cell img").getBoundingClientRect();
+      return { footerWidth: footer.width, headingWidth: heading.width, notesWidth: notes.width, qrWidth: qr.width, signatureWidth: signature.width, qrImageWidth: qrImage.width };
+    })()
+  }));
+  assert.strictEqual(sevenLongPrintDensity.fontSize, "14px");
+  assert.strictEqual(sevenLongPrintDensity.lineHeight, "21px");
+  assert.strictEqual(sevenLongPrintDensity.padding, "11.3386px");
+  assert.ok(Math.abs(sevenLongPrintDensity.footer.footerWidth - sevenLongPrintDensity.footer.headingWidth) <= 1);
+  assert.ok(sevenLongPrintDensity.footer.notesWidth > sevenLongPrintDensity.footer.signatureWidth);
+  assert.ok(sevenLongPrintDensity.footer.qrWidth < sevenLongPrintDensity.footer.signatureWidth);
+  assert.ok(sevenLongPrintDensity.footer.qrImageWidth > 60 && sevenLongPrintDensity.footer.qrImageWidth < 61);
+  const sevenLongPdf = await filteredPdf(sevenLongPreview, "prescription");
+  assertA5Portrait(sevenLongPdf);
+  assert.strictEqual(pageCount(sevenLongPdf), 2, "Seven realistic items should use the first A5 page and leave the footer to flow naturally");
+  const sevenLongPages = await pdfPageTexts(sevenLongPdf);
+  assert.ok(sevenLongPages[0].includes("Neostrata"), "Seven realistic items should remain on the first A5 page");
+  assert.ok(sevenLongPages.some((page) => page.includes("Dặn dò")), "The footer should remain in the printed output");
+  await sevenLongPreview.close();
 
   const manyModel = {
     ...compactModel,
