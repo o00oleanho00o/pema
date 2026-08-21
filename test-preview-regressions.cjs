@@ -237,9 +237,24 @@ async function filteredPdf(page, filter) {
   const sevenLongPrintDensity = await sevenLongPreview.locator('[data-doc="prescription"] .print-page').evaluate((page) => ({
     fontSize: getComputedStyle(page).fontSize,
     lineHeight: getComputedStyle(page).lineHeight,
-    padding: getComputedStyle(page).padding
+    padding: getComputedStyle(page).padding,
+    footer: (() => {
+      const footer = page.querySelector(".print-footer").getBoundingClientRect();
+      const heading = page.querySelector(".footer-heading").getBoundingClientRect();
+      const notes = page.querySelector(".notes").getBoundingClientRect();
+      const qr = page.querySelector(".qr-cell").getBoundingClientRect();
+      const signature = page.querySelector(".signature").getBoundingClientRect();
+      const qrImage = page.querySelector(".qr-cell img").getBoundingClientRect();
+      return { footerWidth: footer.width, headingWidth: heading.width, notesWidth: notes.width, qrWidth: qr.width, signatureWidth: signature.width, qrImageWidth: qrImage.width };
+    })()
   }));
-  assert.deepStrictEqual(sevenLongPrintDensity, { fontSize: "12.5px", lineHeight: "17px", padding: "11.3386px" });
+  assert.strictEqual(sevenLongPrintDensity.fontSize, "12.5px");
+  assert.strictEqual(sevenLongPrintDensity.lineHeight, "17px");
+  assert.strictEqual(sevenLongPrintDensity.padding, "11.3386px");
+  assert.ok(Math.abs(sevenLongPrintDensity.footer.footerWidth - sevenLongPrintDensity.footer.headingWidth) <= 1);
+  assert.ok(sevenLongPrintDensity.footer.notesWidth > sevenLongPrintDensity.footer.signatureWidth);
+  assert.ok(sevenLongPrintDensity.footer.qrWidth < sevenLongPrintDensity.footer.signatureWidth);
+  assert.ok(sevenLongPrintDensity.footer.qrImageWidth > 56 && sevenLongPrintDensity.footer.qrImageWidth < 58);
   const sevenLongPdf = await filteredPdf(sevenLongPreview, "prescription");
   assertA5Portrait(sevenLongPdf);
   assert.strictEqual(pageCount(sevenLongPdf), 1, "Seven realistic items and the footer should fit on one A5 page");

@@ -54,8 +54,9 @@ function buildFooter(data) {
   const patientNote = data.patientNote || "";
   const notes = data.footerNotes || (!patientNote ? (data.notes || "") : "");
   return `<footer class="print-footer">
+    <div class="footer-heading"><span class="footer-label">Dặn dò:</span>${patientNote ? ` <span class="patient-note">${lineBreaks(patientNote)}</span>` : ""}</div>
     <div class="footer-grid">
-      <div class="notes"><div class="footer-heading"><span class="footer-label">Dặn dò:</span>${patientNote ? ` <span class="patient-note">${lineBreaks(patientNote)}</span>` : ""}</div>${notes ? `<div>${lineBreaks(notes)}</div>` : ""}</div>
+      <div class="notes">${notes ? lineBreaks(notes) : ""}</div>
       <div class="qr-cell"><img src="${PRINT_ASSETS.qr}" alt="Zalo QR"><b>Zalo OA</b></div>
       <div class="signature"><div>${escapeHtml(data.date ? `Ngày ${canonicalDate(data.date)}` : "")}</div><b>${escapeHtml(data.doctor || data.doctorLabel || "Bác sĩ khám")}</b></div>
     </div>
