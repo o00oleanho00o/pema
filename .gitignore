@@ -2,7 +2,11 @@
 .chrome-test-profile*/
 .tmp-*/
 audit-preview*.pdf
-preview-test.png
-preview-tran.png
-original-page.png
+/preview-*.png
+/print-media-*.png
+/original-*.png
+/gradient-*.png
+/review-*.png
+/.tmp-*.png
+/tmp-*.pdf
 test-*.out

@@ -97,12 +97,15 @@
     }
     return [];
   })();
-  // The clinic renders each note as a separate label; keep those boundaries for print layout.
-  const notes = footerNoteLines.length ? footerNoteLines.join("\n") : ((noteLabel && !/^Dặn dò\s*:?[ ]*$/i.test(noteLabel)) ? noteLabel : (() => {
+  // Keep the patient-specific note and the standard footer reminders in order.
+  const patientNote = noteLabel && !/^Dặn dò\s*:?[ ]*$/i.test(noteLabel) ? noteLabel : "";
+  const fallbackFooterNotes = (() => {
     const start = fallbackLines.findIndex((line) => /^Dặn dò\s*:?[ ]*$/i.test(line));
     const dateIndex = fallbackLines.findIndex((line) => /Ngày\s+\d{1,2}\s+Tháng\s+\d{1,2}\s+Năm\s+\d{4}/i.test(line));
     return start >= 0 ? fallbackLines.slice(start + 1, dateIndex >= 0 ? dateIndex : fallbackLines.length).filter((line) => !/^Zalo OA$/i.test(line)).join("\n") : "";
-  })());
+  })();
+  const footerNotes = footerNoteLines.length ? [...new Set(footerNoteLines)].join("\n") : fallbackFooterNotes;
+  const notes = [patientNote, footerNotes].filter(Boolean).join("\n");
   const dateRaw = dataText(container, "datestring") || (fallbackLines.find((line) => /Ngày\s+\d{1,2}\s+Tháng\s+\d{1,2}\s+Năm\s+\d{4}/i.test(line)) || "");
   const doctorLabel = "Bác sĩ khám";
   const doctorCandidate = dataText(container, "doctor") || "";
@@ -124,6 +127,8 @@
     clinic: { name: clinicName, slogan, phone: dataText(container, "BranchTel"), address: dataText(container, "BranchAddress"), logo: null, qr: null },
     patient,
     items,
+    patientNote,
+    footerNotes,
     notes,
     date: canonicalDate(dateRaw),
     doctor,

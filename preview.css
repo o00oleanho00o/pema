@@ -1,28 +1,48 @@
-@page { size: A5 landscape; margin: 6mm 15mm; }
+@page { size: A5 portrait; margin: 0; }
 * { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; background: #e8eaed; color: #1d3e6b; font-family: Arial, sans-serif; }
-body { min-height: 100vh; }
-.toolbar { position: sticky; top: 0; z-index: 2; display: flex; gap: 8px; align-items: center; justify-content: center; padding: 10px; background: #f5f6f8; color: #526171; font-size: 13px; }
-.toolbar button { padding: 8px 12px; border: 0; border-radius: 5px; background: #27335a; color: #fff; font-weight: 700; cursor: pointer; }
-.toolbar button.secondary { background: #176b43; }
-.toolbar button:disabled { opacity: .45; cursor: not-allowed; }
-#documents { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 18px; }
-.document-set { display: flex; flex-direction: column; gap: 8px; width: 210mm; }
-.document-label { color: #526171; font-size: 12px; font-weight: 700; }
-.print-page { position: relative; width: 210mm; min-height: 148mm; padding: 6mm 15mm; overflow: visible; background: #fff; font-size: 13px; line-height: 1.25; }
+html, body { width: 100%; height: 100%; margin: 0; padding: 0; color: #1d3e6b; font-family: Arial, sans-serif; }
+body { min-height: 0; overflow: hidden; background: #8b8d90; }
+.preview-backdrop { position: fixed; inset: 0; display: flex; align-items: flex-start; justify-content: center; min-width: 0; min-height: 0; padding: 28px; background: rgba(38, 41, 45, .48); }
+.preview-shell { width: min(1300px, calc(100vw - 56px)); height: min(945px, calc(100dvh - 56px)); min-width: 0; min-height: 0; padding: 10px; border-radius: 16px; background: #f2f4f6; box-shadow: 0 18px 48px rgba(24, 28, 34, .24); }
+.preview-surface { display: grid; grid-template-rows: auto auto minmax(0, 1fr); width: 100%; height: 100%; min-width: 0; min-height: 0; overflow: hidden; border-radius: 15px; background: #fff; }
+.toolbar { position: relative; z-index: 2; display: flex; gap: 16px; align-items: center; justify-content: space-between; width: 100%; min-width: 0; min-height: 72px; padding: 18px 24px 8px; color: #526171; font-size: 13px; }
+.view-tabs { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); flex: 0 1 493px; min-width: 320px; height: 40px; overflow: hidden; border: 1px solid #d5dae2; border-radius: 8px; background: #fff; }
+.print-actions { display: flex; flex: 0 0 auto; min-width: 0; gap: 7px; align-items: center; }
+.toolbar button { min-height: 38px; padding: 8px 14px; border: 0; border-radius: 8px; background: #27335a; color: #fff; font-family: inherit; font-size: 14px; font-weight: 700; white-space: nowrap; cursor: pointer; box-shadow: 0 4px 10px rgba(39, 51, 90, .14); }
+.toolbar button.close-action { background: #8d9bb1; }
+.view-tab { position: relative; min-height: 0 !important; padding: 7px 16px !important; border-radius: 0 !important; background: #fff !important; color: #38465b !important; box-shadow: none !important; }
+.view-tab + .view-tab { border-left: 1px solid #e0e4ea; }
+.view-tab.is-active { background: #eef2f7 !important; color: #1d3e6b !important; }
+.view-tab.is-active::after { content: ""; position: absolute; right: 18px; bottom: 0; left: 18px; height: 3px; border-radius: 3px 3px 0 0; background: #27335a; }
+.toolbar button:disabled { opacity: .42; cursor: not-allowed; box-shadow: none; }
+.preview-meta { display: flex; width: 100%; gap: 16px; align-items: center; justify-content: space-between; min-width: 0; min-height: 21px; padding: 0 24px 4px; font-size: 13px; }
+.page-dimensions { flex: 0 0 auto; color: #e01818; font-size: 14px; font-weight: 700; }
+#previewStatus { min-width: 0; overflow: hidden; color: #5d6878; text-align: right; text-overflow: ellipsis; white-space: nowrap; }
+#previewStatus.error { color: #b42318; font-weight: 700; }
+#documents { width: 100%; min-width: 0; min-height: 0; display: flex; flex-direction: column; align-items: stretch; padding: 0 24px 24px; }
+.document-set { display: none; flex: 1 1 auto; flex-direction: column; min-height: 0; width: 100%; }
+.document-set.is-active { display: flex; }
+.section-scroll { flex: 1 1 auto; width: 100%; min-height: 0; overflow: auto; overscroll-behavior: contain; scrollbar-gutter: stable both-edges; padding: 16px; border: 1px dashed #8fa1b8; border-radius: 8px; background: #fff; scrollbar-color: #a4a7ac transparent; }
+.section-scroll::-webkit-scrollbar { width: 14px; height: 14px; }
+.section-scroll::-webkit-scrollbar-track { background: transparent; }
+.section-scroll::-webkit-scrollbar-thumb { border: 4px solid transparent; border-radius: 999px; background: #a4a7ac; background-clip: padding-box; }
+.document-canvas { width: 148mm; min-width: 148mm; min-height: 210mm; height: auto; margin: 0 auto; background: #fff; }
+.print-page { position: relative; width: 148mm; min-height: 210mm; height: auto; padding: 0; overflow: visible; background: #fff; font-size: 14px; line-height: 21px; }
 .original-header { flex: 0 0 auto; min-height: 0; }
-.identity-row { display: grid; grid-template-columns: 86px 1fr 50mm; align-items: start; min-height: 26mm; }
-.logo-cell { display: flex; align-items: center; justify-content: center; width: 86px; height: 43px; border-right: 2px solid #1d3e6b; }
-.logo-cell img { width: 86px; height: 43px; object-fit: contain; }
+.identity-row { display: grid; grid-template-columns: minmax(0, 1fr) 170px; align-items: start; min-height: 0; }
+.identity-top { display: grid; grid-template-columns: 118px minmax(0, 1fr); align-items: start; min-height: 0; }
+.logo-cell { display: flex; align-items: center; justify-content: center; width: 118px; height: 55.5px; padding-right: 16px; border-right: 2px solid #1d3e6b; }
+.logo-cell img { width: 100px; height: 50px; object-fit: fill; }
 .clinic-column { min-width: 0; }
 .clinic-cell { padding-left: 6px; }
-.clinic-name { margin-top: .5mm; font-size: 14px; font-weight: 700; }
-.clinic-slogan { margin-top: 1px; font-size: 13px; }
-.specialties { width: 50mm; height: 26mm; object-fit: contain; object-position: top center; }
-.contact-row { display: flex; gap: 6px; align-items: flex-start; margin-top: .5mm; }
-.contact-icon { width: 14px; text-align: center; font-weight: 700; }
-.address-row { max-width: 79mm; }
-.print-title { margin: 1mm 0; padding-bottom: 1mm; border-bottom: 2px solid #1d3e6b; text-align: center; font-size: 22px; line-height: 1.05; }
+.clinic-name { margin-top: 1mm; font-size: 15px; font-weight: 700; }
+.clinic-slogan { margin-top: 1px; font-size: 14px; }
+.specialties { width: 170px; height: auto; object-fit: contain; object-position: top center; }
+.contact-row { display: flex; gap: 0; align-items: flex-start; margin-top: 0; }
+.contact-icon { flex: 0 0 11px; width: 11px; text-align: center; font-weight: 700; }
+.contact-row > span:last-child { padding-left: 16px; }
+.address-row { max-width: 281px; }
+.print-title { margin: 0 0 8px; padding: 0 0 0; border-bottom: 3px solid #1d3e6b; text-align: center; font-size: 24px; line-height: 36px; }
 .patient-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid #1d3e6b; border-bottom: 1px solid #1d3e6b; }
 .patient-grid > div { min-height: 5.5mm; padding: 1px 4px; border-bottom: 1px solid #8fa1b8; }
 .patient-grid > div:nth-child(odd) { border-right: 1px solid #1d3e6b; }
@@ -31,31 +51,71 @@ body { min-height: 100vh; }
 .patient-grid span { font-weight: 400; }
 .gender-cell { display: flex; align-items: center; gap: 7px; }
 .gender-option { display: inline-flex; align-items: center; gap: 3px; }
-.gender-box { display: inline-block; width: 4.5mm; height: 4.5mm; border: 1px solid #1d3e6b; background: #fff; }
+.gender-box { display: inline-block; width: 5mm; height: 5mm; border: 1px solid #1d3e6b; background: #fff; }
 .gender-box.checked { position: relative; background: #1d3e6b; }
 .gender-box.checked::after { content: ""; position: absolute; left: 1.2mm; top: .4mm; width: 1.5mm; height: 2.5mm; border: solid #fff; border-width: 0 1px 1px 0; transform: rotate(45deg); }
-.item-list { padding-top: 2.5mm; overflow: visible; }
-.print-item { margin-bottom: 3mm; break-inside: avoid; page-break-inside: avoid; }
-.item-line { display: grid; grid-template-columns: 9mm 1fr 26mm; column-gap: 2mm; align-items: start; }
-.item-number { text-align: right; }
-.item-name { overflow-wrap: anywhere; }
+.item-list { padding-top: 7px; overflow: visible; }
+.print-item { margin-bottom: 16px; break-inside: avoid; page-break-inside: avoid; }
+.print-item:last-child { margin-bottom: 0; }
+.item-line { display: grid; grid-template-columns: 9mm 1fr 26mm; min-height: 29px; column-gap: 2mm; align-items: start; }
+.item-number { text-align: left; }
+.item-name { padding-bottom: 8px; overflow-wrap: anywhere; }
 .item-quantity { white-space: nowrap; }
-.item-usage { margin: 1mm 0 0 11mm; min-height: 4mm; }
-.print-footer { display: grid; grid-template-columns: minmax(0, 1.35fr) 22mm minmax(0, 1fr); gap: 3mm; margin-top: 1mm; border-top: 2px solid #1d3e6b; padding-top: 2mm; font-size: 11px; line-height: 1.2; break-inside: avoid; page-break-inside: avoid; }
-.footer-label { display: block; margin-bottom: 1mm; font-size: 12px; }
-.notes { overflow-wrap: anywhere; }
+.item-usage { margin: 0; padding: 8px 0 0; min-height: 29px; }
+.print-footer { display: block; margin-top: 0; border-top: 2px solid #1d3e6b; padding-top: 0; font-size: 14px; line-height: 21px; break-inside: avoid; page-break-inside: avoid; }
+.patient-note { padding: 8px 0 0; min-height: 29px; overflow-wrap: anywhere; }
+.footer-grid { display: grid; grid-template-columns: 1fr 33mm 1fr; gap: 4mm; margin-top: 8px; }
+.footer-label { display: block; margin-bottom: 0; font-size: 14px; }
+.notes { overflow-wrap: anywhere; font-size: 12.4px; line-height: 18.6px; }
 .qr-cell { display: flex; flex-direction: column; align-items: center; gap: 1mm; text-align: center; }
-.qr-cell img { width: 17mm; height: 17mm; object-fit: contain; }
+.qr-cell img { width: 20mm; height: 20mm; object-fit: contain; }
 .signature { text-align: center; }
 body[data-print-filter="prescription"] [data-doc="consultation"], body[data-print-filter="consultation"] [data-doc="prescription"] { display: none; }
 @media print {
-  html, body { background: #fff; }
-  .toolbar, .document-label { display: none; }
+  html, body { background: #fff; color: #000; }
+  body { display: block; height: auto; overflow: visible; }
+  .preview-backdrop, .preview-shell, .preview-surface { position: static; display: block; width: auto; height: auto; min-width: 0; min-height: 0; max-width: none; max-height: none; margin: 0; padding: 0; overflow: visible; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+  .toolbar, .preview-meta { display: none !important; }
   #documents { display: block; padding: 0; }
-  .document-set { display: block; width: auto; page-break-after: always; break-after: page; }
+  .document-set { display: block !important; width: auto; page-break-after: always; break-after: page; }
+  body[data-print-filter="prescription"] [data-doc="consultation"], body[data-print-filter="consultation"] [data-doc="prescription"] { display: none !important; }
   .document-set:last-child { page-break-after: auto; break-after: auto; }
   body[data-print-filter="prescription"] [data-doc="prescription"], body[data-print-filter="consultation"] [data-doc="consultation"] { page-break-after: auto; break-after: auto; }
-  .print-page { width: auto; min-height: 0; padding: 0; overflow: visible; box-shadow: none; }
+  .section-scroll { display: block; width: auto; height: auto; max-height: none; overflow: visible; padding: 0; border: 0; border-radius: 0; background: #fff; }
+  /* Keep the printed form portrait, matching the clinic's 148 mm x 210 mm canvas. */
+  .document-canvas { width: 148mm; min-width: 148mm; min-height: 210mm; height: auto; margin: 0; }
+  .print-page { width: 148mm; min-width: 148mm; height: auto; min-height: 210mm; padding: 4mm; overflow: visible; box-shadow: none; color: #000; font-size: 14px; line-height: 21px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print-page * { color: #000 !important; border-color: #000 !important; }
+  .print-page img { filter: grayscale(1); }
+  .print-page .gender-box.checked { background: #000 !important; }
+  .print-page .gender-box.checked::after { border-color: #fff !important; }
   .original-header, .print-title, .patient-grid { break-inside: avoid; page-break-inside: avoid; }
 }
-@media screen { .print-page { box-shadow: 0 1px 8px rgba(0, 0, 0, .18); } }
+@media screen and (max-width: 900px) {
+  .preview-backdrop { padding: 12px; }
+  .preview-shell { width: calc(100vw - 24px); height: calc(100dvh - 24px); padding: 8px; border-radius: 13px; }
+  .preview-surface { border-radius: 11px; }
+  .toolbar { flex-wrap: wrap; min-height: 0; padding: 14px 16px 8px; }
+  .view-tabs { flex: 1 1 360px; }
+  .print-actions { flex: 1 1 auto; justify-content: flex-end; overflow-x: auto; padding-bottom: 2px; }
+  .preview-meta { padding: 0 16px 4px; }
+  #documents { padding: 0 16px 16px; }
+}
+@media screen and (max-width: 600px) {
+  .preview-backdrop { padding: 0; }
+  .preview-shell { width: 100vw; height: 100dvh; padding: 0; border-radius: 0; }
+  .preview-surface { border-radius: 0; }
+  .toolbar { display: grid; gap: 8px; padding: 10px 10px 6px; }
+  .view-tabs { width: 100%; min-width: 0; }
+  .print-actions { display: grid; grid-template-columns: repeat(4, max-content); justify-content: flex-start; width: 100%; max-width: 100%; overflow-x: auto; }
+  .toolbar button { min-height: 36px; padding: 7px 11px; font-size: 13px; }
+  .preview-meta { padding: 0 10px 4px; }
+  #previewStatus { font-size: 12px; }
+  #documents { padding: 0 10px 10px; }
+  .section-scroll { padding: 12px; scrollbar-gutter: auto; }
+}
+@media screen and (max-height: 520px) {
+  .preview-backdrop { padding-top: 8px; padding-bottom: 8px; }
+  .preview-shell { height: calc(100dvh - 16px); }
+  .toolbar { min-height: 0; padding-top: 8px; }
+}

@@ -2,8 +2,29 @@
 <html lang="vi">
   <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Tách đơn - Xem trước</title><link rel="stylesheet" href="preview.css"></head>
   <body>
-    <div class="toolbar"><button id="prescriptionPrint" type="button" disabled>In đơn thuốc</button><button id="consultationPrint" type="button" disabled>In phiếu tư vấn</button><button id="allPrint" class="secondary" type="button" disabled>In tất cả</button><span id="previewStatus"></span></div>
-    <main id="documents"></main>
+    <div class="preview-backdrop">
+      <section class="preview-shell" role="dialog" aria-modal="true" aria-label="Xem trước mẫu in">
+        <div class="preview-surface">
+          <header class="toolbar">
+            <div class="view-tabs" role="tablist" aria-label="Chọn mẫu xem">
+              <button id="prescriptionView" class="view-tab" type="button" role="tab" aria-controls="prescriptionPanel" aria-selected="false" tabindex="-1" disabled>Đơn thuốc</button>
+              <button id="consultationView" class="view-tab" type="button" role="tab" aria-controls="consultationPanel" aria-selected="false" tabindex="-1" disabled>Phiếu tư vấn</button>
+            </div>
+            <div class="print-actions">
+              <button id="closePreview" class="close-action" type="button">Đóng</button>
+              <button id="prescriptionPrint" type="button" disabled>In đơn thuốc</button>
+              <button id="consultationPrint" type="button" disabled>In phiếu tư vấn</button>
+              <button id="allPrint" type="button" disabled>In tất cả</button>
+            </div>
+          </header>
+          <div class="preview-meta">
+            <span class="page-dimensions">148 mm × 210 mm</span>
+            <span id="previewStatus"></span>
+          </div>
+          <main id="documents"></main>
+        </div>
+      </section>
+    </div>
     <script src="catalog.js"></script><script src="print-template.js"></script><script src="preview.js"></script>
   </body>
 </html>

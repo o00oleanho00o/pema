@@ -77,17 +77,20 @@ Matching theo thứ tự:
 
 Tên và type được chuẩn hóa Unicode, khoảng trắng, dấu gạch và chữ hoa/thường; các giá trị có nghĩa như `10mg`, `0.1%`, `40ml` không bị xóa.
 
-## Mẫu in
+## Màn hình xem và mẫu in
 
 `print-template.js` là một builder dùng chung cho cả hai output. Hai document giữ cùng logo, header, slogan, phone/address, specialty icons, patient block, diagnosis, item typography, notes, QR/Zalo, date và chữ ký; chỉ title và danh sách item lọc khác nhau. Item trong mỗi document được đánh số lại từ 1.
 
-- Kích thước theo UI/screenshot clinic và yêu cầu cuối: **A5 landscape, 210 mm x 148 mm** (`@page { size: A5 landscape; ... }`).
-- Tài liệu HTML tải về có inline style cũ ghi `148mm x 210mm`, nhưng UI live/screenshot hiển thị `210 mm x 148 mm`; implementation ưu tiên UI live và yêu cầu cuối.
+- Màn hình xem mô phỏng form clinic theo chiều dọc **148 mm x 210 mm**, font Arial `14px/21px`, nằm trong vùng cuộn riêng. Chỉ một nhóm được hiển thị mỗi lần qua hai mục **Đơn thuốc** và **Phiếu tư vấn**, giống dropdown của clinic; không xếp hai form nối dài trên cùng màn hình.
+- Khi in, extension dùng đúng **A5 / Portrait** (`148 mm x 210 mm`) như phiếu clinic. Canvas và trang vật lý cùng một kích thước, không còn bị ép thành các tờ ngang ngắn hoặc co vào khổ Letter.
+- CSS màn hình vẫn dùng xanh Pema để dễ đọc; riêng media print ép chữ, đường kẻ, checkbox và asset về đen/trắng hoặc grayscale để bản in không bị nhạt màu.
+- Tài liệu HTML tải về có inline style `148mm x 210mm` cho canvas xem; extension giữ cùng canvas dọc ở màn hình và khi in.
 - Asset tĩnh đã bundle: `assets/clinic-logo.png`, `assets/specialty-icons.png`, `assets/zalo-qr.png`.
 - Preview và print dùng cùng một builder; không gọi endpoint `/Print/print`.
-- Mỗi nhóm output là một tài liệu liền mạch, rộng đúng `210 mm` và cao tối thiểu `148 mm`. Preview không dùng `overflow: hidden`, nên item hoặc hướng dẫn dài không bị che.
-- Khi in, Chromium tự phân trang theo khổ A5 ngang. Item/footer dùng quy tắc tránh ngắt bên trong khi còn đủ chỗ; danh sách dài tự chảy sang các trang vật lý tiếp theo thay vì bị chia bằng ước lượng số ký tự.
-- Tab preview được đặt thành `Tách đơn - <tên khách>`; nếu thiếu tên thì dùng `Tách đơn - Xem trước`.
+- Mỗi nhóm output dùng canvas cố định `148 mm x 210 mm` như `#PrintfArea` của clinic; nội dung dài được giữ liền mạch và tràn xuống dải giấy trắng trong scrollbar riêng, nên item hoặc hướng dẫn dài không bị che.
+- Khi in, Chromium tự phân trang theo các trang A5 dọc. Item/footer dùng quy tắc tránh ngắt bên trong khi còn đủ chỗ; danh sách dài tự chảy sang các trang A5 tiếp theo thay vì bị chia bằng ước lượng số ký tự.
+- Dòng hướng dẫn của mỗi sản phẩm bắt đầu cùng mép ngoài với dòng số thứ tự; số không còn bị thụt vào so với hướng dẫn.
+- Tab trình duyệt được đặt thành `Tách đơn - <tên khách>`; nếu thiếu tên thì dùng `Tách đơn - Xem trước`.
 
 Visual comparison đã khớp cấu trúc chính và asset gốc. Khác biệt còn lại nhỏ: icon phone/location dùng glyph Unicode thay vì FontAwesome runtime của clinic, một số khoảng cách header/footer và line wrapping có thể lệch vài pixel tùy Chromium/printer.
 
@@ -124,7 +127,7 @@ node test-preview-long.cjs
 node test-preview-regressions.cjs
 ```
 
-Kết quả hiện tại: tất cả JS hợp lệ; Manifest V3 hợp lệ; catalog 115/30/85; hai DOM fixture đúng 2 và 3 item; các node ẩn không làm thay đổi kết quả đọc; preview mixed case tạo đúng hai document và title theo tên khách. Case thực tế `Trần Thị Thùy Dung` in đủ hai sản phẩm tư vấn trên một trang A5; case ba thuốc không bị tách sớm; case 30 sản phẩm tự chảy sang 4 trang A5 và PDF vẫn chứa item đầu/cuối. Import trực tiếp `danhsach.xlsx` cũng đã kiểm tra: sheet `Sheet`, header 1, 115 rows, không duplicate/invalid.
+Kết quả hiện tại: tất cả JS hợp lệ; Manifest V3 hợp lệ; catalog 115/30/85; các DOM fixture trả đúng 2, 3 và 7 item; các node ẩn không làm thay đổi kết quả đọc; preview có hai mục chuyển qua lại và mỗi mục có vùng cuộn riêng. Case thực tế `Trần Thị Thùy Dung` in đủ hai sản phẩm tư vấn trên một trang A5; case `Lê Quốc Chượng` sau khi xác nhận thủ công item chưa match hiển thị 5 thuốc + 2 tư vấn theo đúng khổ A5 và giữ cả ghi chú riêng của bệnh nhân; case 30 sản phẩm tự chảy sang các trang A5 tiếp theo và PDF vẫn chứa item đầu/cuối. Import trực tiếp `danhsach.xlsx` cũng đã kiểm tra: sheet `Sheet`, header 1, 115 rows, không duplicate/invalid.
 
 ## Giới hạn đã biết
 

@@ -10,15 +10,21 @@ function pageCount(pdf) {
   return (pdf.toString("latin1").match(/\/Type\s*\/Page\b/g) || []).length;
 }
 
-function assertA5Landscape(pdf) {
-  const match = pdf.toString("latin1").match(/\/MediaBox\s*\[\s*0\s+0\s+([\d.]+)\s+([\d.]+)/);
-  assert.ok(match, "PDF is missing a MediaBox");
-  const width = Number(match[1]);
-  const height = Number(match[2]);
-  assert.ok(width > 590 && width < 600 && height > 415 && height < 425, `Unexpected page size ${width} x ${height}`);
+function assertA5Portrait(pdf) {
+  const matches = [...pdf.toString("latin1").matchAll(/\/MediaBox\s*\[\s*0\s+0\s+([\d.]+)\s+([\d.]+)/g)];
+  assert.ok(matches.length, "PDF is missing a MediaBox");
+  for (const match of matches) {
+    const width = Number(match[1]);
+    const height = Number(match[2]);
+    assert.ok(width > 415 && width < 425 && height > 590 && height < 600, `Unexpected portrait A5 page size ${width} x ${height}`);
+  }
 }
 
 async function pdfText(pdf) {
+  return (await pdfPageTexts(pdf)).join("\n");
+}
+
+async function pdfPageTexts(pdf) {
   const pdfjs = await import("./.testdeps/node_modules/pdfjs-dist/legacy/build/pdf.mjs");
   const document = await pdfjs.getDocument({ data: new Uint8Array(pdf) }).promise;
   const pages = [];
@@ -27,7 +33,7 @@ async function pdfText(pdf) {
     const content = await page.getTextContent();
     pages.push(content.items.map((item) => item.str).join(" "));
   }
-  return pages.join("\n");
+  return pages;
 }
 
 async function openPreview(browser, model, token) {
@@ -95,16 +101,91 @@ async function filteredPdf(page, filter) {
   assert.strictEqual(consultationLayout.clientHeight, consultationLayout.scrollHeight);
   assert.ok(consultationLayout.items.every((item) => item.top >= 0 && item.bottom <= consultationLayout.clientHeight + 1));
   const consultationPdf = await filteredPdf(tranPreview, "consultation");
-  assertA5Landscape(consultationPdf);
-  assert.strictEqual(pageCount(consultationPdf), 1, "Two consultation products should fit on one A5 page");
+  assertA5Portrait(consultationPdf);
+  assert.strictEqual(pageCount(consultationPdf), 1, "Two consultation products should fit on one portrait A5 page");
   const consultationText = await pdfText(consultationPdf);
   assert.ok(consultationText.includes("VITILSI GEL") && consultationText.includes("Đèn Philip"));
   const allPdf = await tranPreview.pdf({ preferCSSPageSize: true, printBackground: true });
-  assert.strictEqual(pageCount(allPdf), 2, "Printing both document groups should create one A5 page per group for this case");
+  assert.strictEqual(pageCount(allPdf), 2, "Printing both document groups should create one portrait A5 page per group for this case");
   const allText = await pdfText(allPdf);
   assert.ok(allText.includes("Tatopic 0.1%") && allText.includes("Đèn Philip"));
   await tranPreview.screenshot({ path: "preview-tran.png", fullPage: true });
   await tranPreview.close();
+
+  const lePage = await browser.newPage({ viewport: { width: 1920, height: 1080 } });
+  await lePage.goto(pathToFileURL("E:/codex/indon/donthat/Lê Quốc Chượng.html").href);
+  const leExtracted = await lePage.evaluate((source) => eval(source), contentSource);
+  await lePage.close();
+  assert.strictEqual(leExtracted.items.length, 7);
+  const leItems = leExtracted.items.map((item) => sandbox.matchItem(item, catalog, {}, { fuzzyEnabled: false, threshold: 0.86 }));
+  // The last product is intentionally unknown and is resolved explicitly for this fixture.
+  const unresolvedLe = leItems.find((item) => item.sourceName.includes("Neostrata"));
+  assert.strictEqual(unresolvedLe.matchStatus, "UNKNOWN");
+  unresolvedLe.outputType = "CONSULTATION";
+  unresolvedLe.matchStatus = "MANUAL";
+  const leModel = { ...leExtracted, items: leItems };
+  const lePreview = await openPreview(browser, leModel, "le-regression");
+  assert.strictEqual(await lePreview.title(), "Tách đơn - Lê Quốc Chượng");
+  assert.strictEqual(await lePreview.locator('[data-doc="prescription"] .item-name').count(), 5);
+  assert.strictEqual(await lePreview.locator('[data-doc="consultation"] .item-name').count(), 2);
+  const leHeaderLayout = await lePreview.locator('[data-doc="prescription"] .print-page').evaluate((page) => {
+    const root = page.getBoundingClientRect();
+    const rect = (selector) => {
+      const box = page.querySelector(selector).getBoundingClientRect();
+      return { left: box.left - root.left, right: box.right - root.left, top: box.top - root.top };
+    };
+    return {
+      logo: rect(".logo-cell"),
+      clinic: rect(".clinic-cell"),
+      phone: rect(".contact-row"),
+      address: rect(".address-row")
+    };
+  });
+  assert.ok(leHeaderLayout.phone.left <= leHeaderLayout.logo.left + 1, `Phone row should start beneath the logo: ${JSON.stringify(leHeaderLayout)}`);
+  assert.ok(leHeaderLayout.address.left <= leHeaderLayout.logo.left + 1, `Address row should start beneath the logo: ${JSON.stringify(leHeaderLayout)}`);
+  assert.ok(leHeaderLayout.clinic.left >= leHeaderLayout.logo.right - 1, `Clinic name should remain beside the logo: ${JSON.stringify(leHeaderLayout)}`);
+  const lePrescriptionLayout = await lePreview.locator('[data-doc="prescription"] .print-page').evaluate((page) => ({
+    height: page.getBoundingClientRect().height,
+    scrollHeight: page.scrollHeight,
+    clientHeight: page.clientHeight,
+    itemCount: page.querySelectorAll(".print-item").length,
+    footerBottom: page.querySelector(".print-footer").getBoundingClientRect().bottom - page.getBoundingClientRect().top
+  }));
+  assert.ok(lePrescriptionLayout.height > 793, `Expected the five-item prescription canvas to grow naturally, got ${JSON.stringify(lePrescriptionLayout)}`);
+  assert.strictEqual(lePrescriptionLayout.scrollHeight, lePrescriptionLayout.clientHeight, `Prescription content should not overflow its paper canvas: ${JSON.stringify(lePrescriptionLayout)}`);
+  assert.ok(lePrescriptionLayout.footerBottom <= lePrescriptionLayout.height + 1, `Prescription footer should remain inside the expanded canvas: ${JSON.stringify(lePrescriptionLayout)}`);
+  const leItemLayout = await lePreview.locator('[data-doc="prescription"] .print-page').evaluate((page) => {
+    const top = page.getBoundingClientRect().top;
+    return [...page.querySelectorAll(".print-item")].map((item) => Math.round(item.getBoundingClientRect().top - top));
+  });
+  assert.deepStrictEqual(leItemLayout, [268, 342, 437, 511, 585]);
+  const leItemAlignment = await lePreview.locator('[data-doc="prescription"] .print-item:first-child').evaluate((item) => {
+    const line = item.querySelector(".item-line").getBoundingClientRect();
+    const number = item.querySelector(".item-number");
+    const usage = item.querySelector(".item-usage").getBoundingClientRect();
+    return { numberAlign: getComputedStyle(number).textAlign, lineLeft: line.left, usageLeft: usage.left };
+  });
+  assert.strictEqual(leItemAlignment.numberAlign, "left");
+  assert.ok(Math.abs(leItemAlignment.lineLeft - leItemAlignment.usageLeft) <= 1, `Item usage should share the outer left edge: ${JSON.stringify(leItemAlignment)}`);
+  const leScroll = await lePreview.locator('[data-doc="prescription"] .section-scroll').evaluate((node) => ({ clientHeight: node.clientHeight, scrollHeight: node.scrollHeight }));
+  assert.ok(leScroll.scrollHeight > leScroll.clientHeight, `Expected the clinic-like viewport to scroll: ${JSON.stringify(leScroll)}`);
+  assert.ok((await lePreview.locator('[data-doc="consultation"] .patient-note').textContent()).includes("Chú ý ngủ sớm"));
+  assert.ok((await lePreview.locator('[data-doc="consultation"] .notes').textContent()).includes("Quý khách vui lòng đặt lịch hẹn"));
+  await lePreview.locator("#consultationView").click();
+  assert.strictEqual(await lePreview.locator(".document-set.is-active").getAttribute("data-doc"), "consultation");
+  const lePrescriptionPdf = await filteredPdf(lePreview, "prescription");
+  const leConsultationPdf = await filteredPdf(lePreview, "consultation");
+  assertA5Portrait(lePrescriptionPdf);
+  assertA5Portrait(leConsultationPdf);
+  assert.ok(pageCount(lePrescriptionPdf) >= 1, "The Lê Quốc Chượng prescription should produce one or more portrait A5 pages");
+  assert.strictEqual(pageCount(leConsultationPdf), 1, "The two-item Lê Quốc Chượng consultation should fit on one portrait A5 page");
+  assert.ok((await pdfText(lePrescriptionPdf)).includes("VERTUCID"));
+  assert.ok((await pdfText(leConsultationPdf)).includes("Neostrata"));
+  const lePrescriptionPages = await pdfPageTexts(lePrescriptionPdf);
+  assert.ok(lePrescriptionPages.some((page) => page.includes("VERTUCID")), "The final item must remain in the printed prescription");
+  assert.ok(lePrescriptionPages.some((page) => page.includes("Dặn dò")), "The prescription footer must remain in the printed output");
+  await lePreview.screenshot({ path: "preview-le.png", fullPage: true });
+  await lePreview.close();
 
   const compactModel = {
     clinic: extracted.clinic,
@@ -121,7 +202,7 @@ async function filteredPdf(page, filter) {
   };
   const compactPreview = await openPreview(browser, compactModel, "compact-regression");
   const compactPdf = await filteredPdf(compactPreview, "prescription");
-  assertA5Landscape(compactPdf);
+  assertA5Portrait(compactPdf);
   assert.strictEqual(pageCount(compactPdf), 1, "The three-item prescription should not be split prematurely");
   const compactText = await pdfText(compactPdf);
   assert.ok(compactText.includes("Nibean Itraconazol") && compactText.includes("VERTUCID"));
@@ -141,15 +222,22 @@ async function filteredPdf(page, filter) {
   };
   const manyPreview = await openPreview(browser, manyModel, "many-regression");
   assert.strictEqual(await manyPreview.locator(".print-item").count(), 30);
-  const manyPage = await manyPreview.locator(".print-page").evaluate((page) => ({ clientHeight: page.clientHeight, scrollHeight: page.scrollHeight }));
-  assert.strictEqual(manyPage.clientHeight, manyPage.scrollHeight);
+  const manyPage = await manyPreview.locator(".print-page").evaluate((page) => ({
+    height: page.getBoundingClientRect().height,
+    clientHeight: page.clientHeight,
+    scrollHeight: page.scrollHeight,
+    footerBottom: page.querySelector(".print-footer").getBoundingClientRect().bottom - page.getBoundingClientRect().top
+  }));
+  assert.ok(manyPage.height > 793, `Expected the 30-item form to grow beyond one portrait sheet: ${JSON.stringify(manyPage)}`);
+  assert.strictEqual(manyPage.scrollHeight, manyPage.clientHeight, `The 30-item canvas should expand instead of clipping content: ${JSON.stringify(manyPage)}`);
+  assert.ok(manyPage.footerBottom <= manyPage.height + 1, `The 30-item footer should remain inside the expanded canvas: ${JSON.stringify(manyPage)}`);
   const manyPdf = await filteredPdf(manyPreview, "prescription");
-  assertA5Landscape(manyPdf);
+  assertA5Portrait(manyPdf);
   assert.ok(pageCount(manyPdf) > 1, "A long prescription should flow onto additional physical pages");
   const manyText = await pdfText(manyPdf);
   assert.ok(manyText.includes("Sản phẩm 1 ") && manyText.includes("Sản phẩm 30 "));
   await manyPreview.close();
 
   await browser.close();
-  console.log(JSON.stringify({ consultationPages: pageCount(consultationPdf), allPages: pageCount(allPdf), compactPages: pageCount(compactPdf), manyPages: pageCount(manyPdf) }));
+  console.log(JSON.stringify({ consultationPages: pageCount(consultationPdf), allPages: pageCount(allPdf), lePrescriptionItems: 5, leConsultationItems: 2, compactPages: pageCount(compactPdf), manyPages: pageCount(manyPdf) }));
 })().catch((error) => { console.error(error); process.exit(1); });

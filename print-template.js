@@ -19,8 +19,11 @@ function canonicalDate(value) {
 function buildHeader(data) {
   return `<header class="original-header">
     <div class="identity-row">
-      <div class="logo-cell"><img src="${PRINT_ASSETS.logo}" alt="Pema"></div>
-      <div class="clinic-column"><div class="clinic-cell"><div class="clinic-name">${escapeHtml(data.clinic?.name)}</div><div class="clinic-slogan">${escapeHtml(data.clinic?.slogan)}</div></div>
+      <div class="clinic-column">
+        <div class="identity-top">
+          <div class="logo-cell"><img src="${PRINT_ASSETS.logo}" alt="Pema"></div>
+          <div class="clinic-cell"><div class="clinic-name">${escapeHtml(data.clinic?.name)}</div><div class="clinic-slogan">${escapeHtml(data.clinic?.slogan)}</div></div>
+        </div>
         <div class="contact-row"><span class="contact-icon">&#9742;</span><span>${escapeHtml(data.clinic?.phone)}</span></div>
         <div class="contact-row address-row"><span class="contact-icon">&#9679;</span><span>${escapeHtml(data.clinic?.address)}</span></div>
       </div>
@@ -48,16 +51,20 @@ function buildItems(items) {
 }
 
 function buildFooter(data) {
-  const notes = data.notes || "";
+  const patientNote = data.patientNote || "";
+  const notes = data.footerNotes || (!patientNote ? (data.notes || "") : "");
   return `<footer class="print-footer">
-    <div class="notes"><span class="footer-label">Dặn dò:</span>${notes ? `<div>${lineBreaks(notes)}</div>` : ""}</div>
-    <div class="qr-cell"><img src="${PRINT_ASSETS.qr}" alt="Zalo QR"><b>Zalo OA</b></div>
-    <div class="signature"><div>${escapeHtml(data.date ? `Ngày ${canonicalDate(data.date)}` : "")}</div><b>${escapeHtml(data.doctor || data.doctorLabel || "Bác sĩ khám")}</b></div>
+    ${patientNote ? `<div class="patient-note">${lineBreaks(patientNote)}</div>` : ""}
+    <div class="footer-grid">
+      <div class="notes"><span class="footer-label">Dặn dò:</span>${notes ? `<div>${lineBreaks(notes)}</div>` : ""}</div>
+      <div class="qr-cell"><img src="${PRINT_ASSETS.qr}" alt="Zalo QR"><b>Zalo OA</b></div>
+      <div class="signature"><div>${escapeHtml(data.date ? `Ngày ${canonicalDate(data.date)}` : "")}</div><b>${escapeHtml(data.doctor || data.doctorLabel || "Bác sĩ khám")}</b></div>
+    </div>
   </footer>`;
 }
 
-function buildPrintDocument({ title, clinic, patient, items, notes, date, doctor, doctorLabel }) {
-  const data = { clinic, patient, notes, date, doctor, doctorLabel };
+function buildPrintDocument({ title, clinic, patient, items, patientNote, footerNotes, notes, date, doctor, doctorLabel }) {
+  const data = { clinic, patient, patientNote, footerNotes, notes, date, doctor, doctorLabel };
   return `<article class="print-page">
     ${buildHeader(data)}
     <h1 class="print-title">${escapeHtml(title)}</h1>
