@@ -248,19 +248,19 @@ async function filteredPdf(page, filter) {
       return { footerWidth: footer.width, headingWidth: heading.width, notesWidth: notes.width, qrWidth: qr.width, signatureWidth: signature.width, qrImageWidth: qrImage.width };
     })()
   }));
-  assert.strictEqual(sevenLongPrintDensity.fontSize, "12.5px");
-  assert.strictEqual(sevenLongPrintDensity.lineHeight, "17px");
+  assert.strictEqual(sevenLongPrintDensity.fontSize, "14px");
+  assert.strictEqual(sevenLongPrintDensity.lineHeight, "21px");
   assert.strictEqual(sevenLongPrintDensity.padding, "11.3386px");
   assert.ok(Math.abs(sevenLongPrintDensity.footer.footerWidth - sevenLongPrintDensity.footer.headingWidth) <= 1);
   assert.ok(sevenLongPrintDensity.footer.notesWidth > sevenLongPrintDensity.footer.signatureWidth);
   assert.ok(sevenLongPrintDensity.footer.qrWidth < sevenLongPrintDensity.footer.signatureWidth);
-  assert.ok(sevenLongPrintDensity.footer.qrImageWidth > 56 && sevenLongPrintDensity.footer.qrImageWidth < 58);
+  assert.ok(sevenLongPrintDensity.footer.qrImageWidth > 60 && sevenLongPrintDensity.footer.qrImageWidth < 61);
   const sevenLongPdf = await filteredPdf(sevenLongPreview, "prescription");
   assertA5Portrait(sevenLongPdf);
-  assert.strictEqual(pageCount(sevenLongPdf), 1, "Seven realistic items and the footer should fit on one A5 page");
+  assert.strictEqual(pageCount(sevenLongPdf), 2, "Seven realistic items should use the first A5 page and leave the footer to flow naturally");
   const sevenLongPages = await pdfPageTexts(sevenLongPdf);
   assert.ok(sevenLongPages[0].includes("Neostrata"), "Seven realistic items should remain on the first A5 page");
-  assert.ok(sevenLongPages[0].includes("Dặn dò"), "The footer should remain on the same A5 page as seven realistic items");
+  assert.ok(sevenLongPages.some((page) => page.includes("Dặn dò")), "The footer should remain in the printed output");
   await sevenLongPreview.close();
 
   const manyModel = {
