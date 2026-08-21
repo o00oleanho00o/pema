@@ -63,9 +63,9 @@ body { min-height: 0; overflow: hidden; background: #8b8d90; }
 .item-quantity { white-space: nowrap; }
 .item-usage { margin: 0; padding: 8px 0 0; min-height: 29px; }
 .print-footer { display: block; margin-top: 0; border-top: 2px solid #1d3e6b; padding-top: 0; font-size: 14px; line-height: 21px; break-inside: avoid; page-break-inside: avoid; }
-.patient-note { padding: 8px 0 0; min-height: 29px; overflow-wrap: anywhere; }
+.patient-note { overflow-wrap: anywhere; }
 .footer-grid { display: grid; grid-template-columns: 1fr 33mm 1fr; gap: 4mm; margin-top: 8px; }
-.footer-label { display: block; margin-bottom: 0; font-size: 14px; }
+.footer-label { font-size: 14px; }
 .notes { overflow-wrap: anywhere; font-size: 12.4px; line-height: 18.6px; }
 .qr-cell { display: flex; flex-direction: column; align-items: center; gap: 1mm; text-align: center; }
 .qr-cell img { width: 20mm; height: 20mm; object-fit: contain; }
@@ -84,7 +84,30 @@ body[data-print-filter="prescription"] [data-doc="consultation"], body[data-prin
   .section-scroll { display: block; width: auto; height: auto; max-height: none; overflow: visible; padding: 0; border: 0; border-radius: 0; background: #fff; }
   /* Keep the printed form portrait, matching the clinic's 148 mm x 210 mm canvas. */
   .document-canvas { width: 148mm; min-width: 148mm; min-height: 210mm; height: auto; margin: 0; }
-  .print-page { width: 148mm; min-width: 148mm; height: auto; min-height: 210mm; padding: 4mm; overflow: visible; box-shadow: none; color: #000; font-size: 14px; line-height: 21px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .print-page { width: 148mm; min-width: 148mm; height: auto; min-height: 210mm; padding: 3mm; overflow: visible; box-shadow: none; color: #000; font-size: 12.5px; line-height: 17px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .identity-row { grid-template-columns: minmax(0, 1fr) 155px; }
+  .identity-top { grid-template-columns: 108px minmax(0, 1fr); }
+  .logo-cell { width: 108px; height: 50px; padding-right: 12px; }
+  .logo-cell img { width: 90px; height: 45px; }
+  .clinic-name { font-size: 14px; }
+  .clinic-slogan { margin-top: 0; font-size: 12.5px; }
+  .specialties { width: 155px; }
+  .address-row { max-width: 260px; }
+  .print-title { margin-bottom: 3px; border-bottom-width: 2px; font-size: 19px; line-height: 25px; }
+  .patient-grid > div { min-height: 4.5mm; padding: 0 3px; }
+  .gender-cell { gap: 5px; }
+  .gender-option { gap: 2px; }
+  .gender-box { width: 4mm; height: 4mm; }
+  .item-list { padding-top: 3px; }
+  .print-item { margin-bottom: 5px; }
+  .item-line { grid-template-columns: 7mm 1fr 20mm; min-height: 18px; }
+  .item-name { padding-bottom: 1px; }
+  .item-usage { padding-top: 1px; min-height: 18px; }
+  .print-footer { font-size: 12.5px; line-height: 17px; }
+  .footer-grid { grid-template-columns: 1fr 29mm 1fr; gap: 3mm; margin-top: 3px; }
+  .footer-label { font-size: 12.5px; }
+  .notes { font-size: 11px; line-height: 14.5px; }
+  .qr-cell img { width: 17mm; height: 17mm; }
   .print-page * { color: #000 !important; border-color: #000 !important; }
   .print-page img { filter: grayscale(1); }
   .print-page .gender-box.checked { background: #000 !important; }
