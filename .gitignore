@@ -1,0 +1,8 @@
+.testdeps/
+.chrome-test-profile*/
+.tmp-*/
+audit-preview*.pdf
+preview-test.png
+preview-tran.png
+original-page.png
+test-*.out

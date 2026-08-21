@@ -1,0 +1,410 @@
+﻿const MSV_Name = {
+    color: 'setting_Color',
+    fontSize: 'setting_FontSize',
+    darkMode: 'settingDarkMode',
+    menutype: 'menu_type',
+    menuposition: 'menu_position',
+}
+function MSV_Initiliaze () {
+    MSVMenuPos_Set();
+    MSV_InitiliazeExe();
+   // MSV_PreviewImg();
+}
+const MSV_Listcolor = {
+    'primary': {
+        'bs-primary': '203, 12, 159',
+        'bs-primary-from': '121, 40, 202',
+        'bs-primary-to': '255, 0, 128',
+        'bs-memu': '32, 0, 34',
+    }
+    , 'primary-2': {
+        'bs-primary': '235, 51, 72',
+        'bs-primary-from': '235, 51, 72',
+        'bs-primary-to': '244, 92, 67',
+        'bs-memu': '26, 4, 5',
+    }
+    , 'primary-3': {
+        'bs-primary': '9, 124, 216',
+        'bs-primary-from': '0, 74, 201',
+        'bs-primary-to': '33, 170, 253',
+        'bs-memu': '4, 34, 70',
+    }
+    , 'primary-4': {
+        'bs-primary': '15, 116, 2',
+        'bs-primary-from': '15, 116, 2',
+        'bs-primary-to': '23, 165, 87',
+        'bs-memu': '1, 18, 2',
+    }
+    , 'primary-5': {
+        'bs-primary': '118, 0, 220',
+        'bs-primary-from': '118, 0, 220',
+        'bs-primary-to': '218, 34, 255',
+        'bs-memu': '19, 2, 28',
+    }
+    , 'primary-6': {
+        'bs-primary': '255, 81, 47',
+        'bs-primary-from': '255, 81, 47',
+        'bs-primary-to': '240, 152, 25',
+        'bs-memu': '30, 12, 3',
+    }
+    , 'primary-7': {
+        'bs-primary': '214, 51, 132',
+        'bs-primary-from': '214, 51, 132',
+        'bs-primary-to': '186, 22, 103',
+        'bs-memu': '30, 2, 16',
+    },
+
+}
+
+//#region ICD
+
+const MSV_ICDArea = {
+    "diagnose": 0
+    ,"prescription" : 1
+}
+//#endregion
+async function MSV_InitiliazeExe () {
+    new Promise(() => {
+        setTimeout(() => {
+            MSVDarkmode_Set(MSVDarkmode_Get());
+            MSVDarkmode_Event();
+            MSVColor_Set();
+            MSV_FontSet();
+            MSV_ColorRender(MSV_Listcolor, 'Master_Bagde_Color');
+        })
+    })
+}
+async function MSV_PreviewImg() {
+    new Promise(() => {
+        setTimeout(() => {
+            $('body').on('click','.previewimg',function() {
+                event.stopPropagation();
+                if($(this).is('img')) {
+                    let _prelink=$(this).attr('src');
+                    if(_prelink!="") {
+                        $('#MainPreview_Image img').attr('src',_prelink);
+                        $('#MainPreview_Image').addClass('show');
+                    }
+
+                }
+            });
+
+
+
+
+        })
+    })
+}
+//#region // SETTING DARKMODE
+function MSVDarkmode_Event () {
+    $("#dark-version").unbind('click').on("click", function () {
+        if ($("#BodyMain").hasClass("dark-version"))
+            MSVDarkmode_Set('light');
+        else
+            MSVDarkmode_Set('dark');
+    })
+}
+function MSVDarkmode_Set (mode) {
+    if (mode == 'light') {
+        $("#BodyMain").removeClass('dark-version');
+        $("#dark-version").prop("checked", false);
+        $("#dark-versionarea .night").removeClass('d-none');
+        $("#dark-versionarea .morning").addClass('d-none');
+    }
+    else {
+        $("#BodyMain").addClass('dark-version');
+        $("#dark-version").prop("checked", true);
+        $("#dark-versionarea .night").addClass('d-none');
+        $("#dark-versionarea .morning").removeClass('d-none');
+    }
+    localstorage_set(MSV_Name.darkMode, mode);
+}
+function MSVDarkmode_Get () {
+    try {
+        let result = 'light';
+        let dataMode = localstorage_get(MSV_Name.darkMode);
+        if (dataMode != '') {
+            result = JSON.parse(dataMode).data;
+        }
+        return result;
+    }
+    catch (ex) {
+        return 'light';
+    }
+
+}
+//#endregion
+
+//#region // SETTING COLOR
+async function MSV_FontSet() {
+    document.documentElement.style.setProperty('--bs-font-sans-serif', 'Be Vietnam Pro, sans-serif');
+}
+//#endregion
+
+//#region // SETTING COLOR
+async function MSV_ColorRender (data, id) {
+    new Promise((resolve) => {
+        var myNode = document.getElementById(id);
+        if (myNode != null) {
+            myNode.innerHTML = "";
+            if (data && Object.values(data).length > 0) {
+                for (let [key, value] of Object.entries(data)) {
+                    let bgColor = `background-image: linear-gradient(310deg, rgb(${value['bs-primary-from']}) 0%, rgb(${value['bs-primary-to']}) 100%)`;
+                    let tr = `<span class="setting-color badge filter" style="${bgColor}" data-color="${key}" ></span>`;
+                    myNode.insertAdjacentHTML('beforeend', tr);
+                }
+            }
+        }
+        MSVGeneral_Event();
+    })
+}
+function MSVGeneral_Event () {
+    $("#Master_Bagde_Color .setting-color").on("click", function () {
+        let dataColor = $(this).attr('data-color');
+        if (MSV_Listcolor && MSV_Listcolor[dataColor] != undefined) {
+            localstorage_set(MSV_Name.color, JSON.stringify(MSV_Listcolor[dataColor]));
+            MSVColor_Set();
+        }
+    })
+    $("#Master_Bagde_Navtype .settype").on("click", function () {
+        let datatype = $(this).attr('data-type');
+        localstorage_set(MSV_Name.menutype, datatype);
+        MSVColor_Set();
+    })
+    $("#Master_Bagde_Position .settype").on("click", function () {
+        let datatype = $(this).attr('data-type');
+        localstorage_set(MSV_Name.menuposition, datatype);
+        $("#BodyMain").addClass('opacity-0');
+        MSVMenuPos_Set();
+         location.reload();
+    })
+}
+function MSVColor_Get () {
+    try {
+        let result = {};
+        let data = localstorage_get(MSV_Name.color);
+        if (data && data != '') {
+            let dataSetting = JSON.parse(data);
+            result = JSON.parse(dataSetting.data);
+        }
+        return result;
+    }
+    catch (ex) {
+        return {};
+    }
+}
+function MSVMenuType_Get () {
+    try {
+        let result = "";
+        let data = localstorage_get(MSV_Name.menutype);
+        if (data && data != '') {
+            let dataSetting = JSON.parse(data);
+            result = dataSetting.data;
+        }
+        return result;
+    }
+    catch (ex) {
+        return {};
+    }
+}
+function MSVColor_Set () {
+    try {
+        let color_primary = "";
+        let color_textprimary = "255, 255, 255";
+        let dataSetting = MSVColor_Get();
+        if (dataSetting && Object.values(dataSetting).length != 0) {
+            color_primary = dataSetting['bs-memu'];
+            document.documentElement.style.setProperty('--bs-primary', dataSetting['bs-primary']);
+            document.documentElement.style.setProperty('--bs-primary-from', dataSetting['bs-primary-from']);
+            document.documentElement.style.setProperty('--bs-primary-to', dataSetting['bs-primary-to']);
+        }
+        else if (defaultColor && defaultColor.length > 0) {
+            dataSetting = JSON.parse(defaultColor.replace(/&quot;/g, '"'));
+            color_primary = dataSetting['bs-memu'];
+            document.documentElement.style.setProperty('--bs-primary', dataSetting['bs-primary']);
+            document.documentElement.style.setProperty('--bs-primary-from', dataSetting['bs-primary-from']);
+            document.documentElement.style.setProperty('--bs-primary-to', dataSetting['bs-primary-to']);
+        }
+
+        let _menutype = MSVMenuType_Get();
+
+        if (_menutype == "color") {
+            if (color_primary != "" && color_primary != undefined)
+                document.documentElement.style.setProperty('--bs-menu', color_primary);
+            else
+                document.documentElement.style.setProperty('--bs-menu', '33, 37, 41');
+            document.documentElement.style.setProperty('--bs-menu-text', color_textprimary);
+            $("#sidenav-main").removeClass('bg-gray-100');
+        }
+        else {
+            $("#sidenav-main").addClass('bg-gray-100');
+            $("#sidenav-main .sidenav-header").addClass('bg-gray-100');
+            //#f8f9fa 248, 249, 250
+
+            document.documentElement.style.setProperty('--bs-menu', "");
+            document.documentElement.style.setProperty('--bs-menu-text', "0, 19, 33");
+        }
+    }
+    catch (ex) {
+        return false;
+    }
+}
+//#endregion
+
+//#region // Pos
+function MSVMenuPos_Get () {
+    try {
+        let result = {};
+        let data = localstorage_get(MSV_Name.menuposition);
+        if (data && data != '') {
+            let dataSetting = JSON.parse(data);
+            result = dataSetting.data;
+        }
+        return result;
+    }
+    catch (ex) {
+        return {};
+    }
+}
+function MSVMenuPos_Set () {
+    try {
+        let mode = MSVMenuPos_Get();
+        if (mode == 'top') {
+             $("#BodyMain").addClass('menutop-version');
+        }
+        else {
+           $("#BodyMain").removeClass('menutop-version');
+        }
+    }
+    catch (ex) {
+        return false;
+    }
+}
+//#endregion
+
+//#region // show more
+function Master_ToggleShowContent () {
+    $("#BodyMain").toggleClass('show_content_all');
+    Master_ClosePopupContent();
+}
+
+function Master_ClosePopupContent () {
+    $('#Master_ViewContent').removeClass('active');
+    $('#Master_Content').html('');
+}
+function Master_ReadContentCollapse () {
+    $('body').on('click', '.content_line_clamp', function () {
+        event.stopPropagation();
+        let isAll = $("#BodyMain").hasClass('show_content_all');
+        if (this.scrollHeight > this.clientHeight || isAll) {
+            let titleshowall = $('#Master_ShowAll');
+            if (isAll) titleshowall.html(Outlang["Thu_gon_tat_ca"]);
+            else titleshowall.html(Outlang["Hien_thi_tat_ca"]);
+            $('#Master_ViewContent').addClass("active");
+
+             $("#Master_Content").html($(this).html());
+
+        }
+    });
+
+}
+//#endregion
+//#region ICD Event
+function Master_ICDGetArea(key) {
+    if (MSV_ICDArea && MSV_ICDArea[key] != undefined)
+        return MSV_ICDArea[key]
+    else return ''
+}
+//#endregion
+//#region // JS & CSS & Lan
+
+function MSL_JS_Header(callback) {
+    try {
+           
+        const jsListIni_Ini=IS_DEV==1? [...window.bundlejs_ini]:[StaticLink_Convert('/js/Bundle/bundle.ini.min.js')];
+        const jsListHeader=IS_DEV==1? [...window.bundlejs_head]:[StaticLink_Convert('/js/Bundle/bundle.header.min.js')];
+        const jsList=[
+            ...jsListIni_Ini,
+            ...jsListHeader
+        ];
+
+        if (Number(sys_Minify)===0) {
+            jsList.push('/Protect/index.js');
+            jsList.push('/Protect/protect.js');
+            jsList.push('/Protect/protect_20220717.js');
+        }
+
+        if (Number(Master_heartbeat)===1) {
+            jsList.push('/js/comon/KeepAlive.js');
+        }
+        Master_Load_Lan(function() {
+            JSStatic_Seq(jsList,function() {
+                if(typeof callback==='function') callback();
+            });
+        });
+
+
+    } catch(ex) {
+        console.error('Error in MSL_JS_Header:',ex);
+    }
+}
+
+Master_Load_Lan(() => { },"_bdUserLang");
+function Master_Load_Lan(_callback,valLang) { 
+    try {
+        valLang = valLang ? valLang : 'UserLang'
+        const _lan=author_get(valLang);
+        const langMap={
+            'vi': '/Language/OutResource.vi.js',
+            'en': '/Language/OutResource.en.js',
+            'lo': '/Language/OutResource.lo.js',
+            'ko': '/Language/OutResource.ko.js',
+            'zh-CN': '/Language/OutResource.zh-CN.js',
+            'ja-JP': '/Language/OutResource.ja-JP.js'
+        };
+        const langFile=langMap[_lan]||'/Language/OutResource.vi.js';
+
+        // Load file ngôn ngữ
+        JSStatic(langFile,function() {
+            try {
+                if(!Array.isArray(DataOutlang)) {
+                    Outlang={};
+                } else {
+                    Outlang=DataOutlang.reduce((pre,arr) => {
+                        if(arr.Key) {
+                            if(pre[arr.Key]===undefined) {
+                                pre[arr.Key]=arr.Value;
+                            } else {
+                                pre[arr.Key]+=` [${arr.Value}]`;
+                            }
+                        }
+                        return pre;
+                    },{});
+                }
+            } catch(errReduce) {
+                console.warn('Lang reduce failed:',errReduce);
+                Outlang={};
+            }
+
+            if(typeof _callback==='function') _callback();
+        });
+    } catch(e) {
+        console.error('Error in Master_Load_Lan:',e);
+    }
+}
+function MSL_JS_Footer() {
+    try {
+
+        const jsList=IS_DEV==1? [...window.bundlejs_foot]:[StaticLink_Convert('/js/Bundle/bundle.footer.min.js')];
+        JSStatic_Async(jsList);
+
+    } catch(ex) {
+        console.error('Error in MSL_JS_Header:',ex);
+    }
+}
+
+
+//#endregion
+
+
+

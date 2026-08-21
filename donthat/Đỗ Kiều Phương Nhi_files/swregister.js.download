@@ -1,0 +1,245 @@
+﻿//#region // Preload link
+const serwork_js = [
+    '/js/comon/Library.js',
+    '/assests/js/Swipe.js',
+    '/assests/js/detect-mobile.js',
+    '/assests/dist/flatpickr/flatpickr.js',
+    '/assests/dist/plugins/datatable/jquery.dataTables.js',
+    '/assests/dist/MultiColumnCombo/jquery.inputpicker.js',
+    '/assests/dist/NumberThousand/number-divider.js',
+    '/assests/dist/NumberThousand/jquery.number.js',
+    '/js/comon.js',
+    '/assests/dist/HightLight/dist/jquery.mark.js',
+    '/assests/library/jquery.signalR-2.4.1.min.js',
+    '/assests/dist/signalr/dist/browser/signalr.js',
+    '/js/signalR/notification_hub.js',
+    '/js/signalR/chat_hub.js',
+    '/js/comon/mark.js',
+    '/js/comon/Datetime.js',
+    '/js/Datetime/Datetime_v2.js',
+    '/js/Datetime/function.js',
+    '/js/comon/permission_tabcontrol.js',
+    '/js/comon/Popup.js',
+    '/js/comon/Combo_v2.js',
+    '/js/comon/Formatnumber.js',
+    '/js/comon/Other.js',
+    '/js/comon/report.js',
+    '/js/comon/Callcenter.js',
+    '/js/comon/Render.js',
+    '/js/comon/tablesort.js',
+    '/js/print/print.js',
+    '/assests/dist/ExportExcel/ExportELSX/xlsx.core.min.js',
+    '/assests/dist/ExportExcel/ExportELSX/FileSaver.js',
+    '/js/comon/CheckConnection.js',
+    '/js/comon/AlarmSchedule.js',
+    '/assests/dist/Barcode/JsBarcode.code128.min.js',
+    '/js/comon/Signation.js',
+    '/js/customjs/custom-tablefixer.js',
+    '/js/Excel/lib/exceljs.js',
+    '/js/Excel/Export_v2.js',
+    '/js/table_responsive.js',
+    '/js/main-sidebar.js',
+    '/assests/dist/plugins/cookie/js.cookie.js',
+    '/assests/dist/ExportExcel/ExportELSX/tableexport.min.js',
+    '/assests/library/jquery-ui.js',
+    '/assests/dist/Popperjs/popper.min.js',
+    '/js/Shared/master.js',
+    '/assests/dist/UploadJS/js/vendor/jquery.ui.widget.js',
+    '/assests/dist/UploadJS/js/jquery.iframe-transport.js',
+    '/assests/dist/UploadJS/js/jquery.fileupload.js',
+    '/assests/dist/ColorPicker/spectrum.js',
+    '/assests/dist/Paginationjs/paginationjs.min.js',
+    '/assests/dist/QRCode/qrcode.min.js',
+    '/js/log.js',
+    '/Print/printThis.js',
+    '/Protect/index.js',
+    '/Protect/protect.js',
+    '/Protect/protect_20220717.js',
+    '/js/comon/KeepAlive.js',
+    '/assests/dist/lightGallery/lightgallery.min.js',
+    '/assests/dist/lightGallery/plugins/thumbnail/lg-thumbnail.min.js',
+    '/assests/dist/lightGallery/plugins/fullscreen/lg-fullscreen.min.js',
+    '/assests/dist/lightGallery/plugins/zoom/lg-zoom.min.js',
+    '/assests/dist/lightGallery/plugins/autoplay/lg-autoplay.min.js',
+    '/assests/dist/lightGallery/plugins/share/lg-share.min.js',
+    '/assests/dist/lightGallery/plugins/rotate/lg-rotate.min.js',
+    '/js/ProjectClosure/ProjectClosure.js',
+    '/assets/js/plugins/countup.min.js',
+    '/assests/dist/datetimepicker/build/jquery.datetimepicker.full.js',
+    '/js/ThirdParty/APIAction.js',
+    '/js/ThirdParty/AccountAction.js',
+    '/js/ThirdParty/MedAction.js',
+    '/js/ThirdParty/SkinscanAction.js',
+    '/js/ThirdParty/PancakeAction.js',
+    '/js/comon/showmore.js',
+    '/assests/dist/SemanticUI/dropdown.min.js',
+    '/assests/dist/SemanticUI/popup.js',
+    '/assests/dist/SemanticUI/transition.js',
+    '/assets/js/soft-ui-dashboard.min.js',
+    '/js/comon/Form.js',
+    '/js/Conversation/init.js',
+    '/assests/dist/SemanticUI/form.js',
+    '/assests/dist/plugins/sweetalert2/sweetalert2.min.js',
+    '/js/comon/noti_function.js',
+    '/js/comon/Remove_title.js',
+    '/assests/js/RSVP/rsvp.min.js',
+    '/assests/library/jquery-2.1.4.min.js',
+    '/assests/dist/Guide/enjoyhint.min.js',
+    '/assests/dist/Phone/js/intlTelInput.min.js',
+    '/js/comon/render_teeth.js',
+    '/js/comon/Toast.js',
+    '/js/comon/NotiExe.js',
+    '/js/comon/userguide.js',
+    '/js/main.js',
+    '/assets/js/core/popper.min.js',
+    '/assets/js/core/bootstrap.js',
+    '/assets/js/plugins/perfect-scrollbar.min.js',
+    '/assets/js/plugins/smooth-scrollbar.min.js',
+    '/assests/dist/Timer/easytimer.min.js',
+    '/firebase10.js',
+    '/assests/js/ajax.min.js',
+    '/Language/OutResource.vi.js',
+    '/Language/OutResource.en.js',
+    '/Language/OutResource.lo.js',
+    '/Language/OutResource.ko.js',
+    '/Language/OutResource.zh-CN.js',
+    '/Language/OutResource.ja-JP.js',
+    '/js/customjs/custom-validation.js',
+    '/assests/dist/Html5-Qrcode/html5-qrcode.js',
+    '/js/Auth/Otp.js',
+    '/assests/sweetalert2.js',
+    '/Cloud3rd/Cloudini.js',
+    '/jssip/jssip-3.0.7-custom.js',
+    '/js/comon/adapter-latest.js',
+    '/jssip/callexecute.js',
+    '/js/Email.js',
+    '/js/sms.js',
+    '/js/camera.js',
+    '/Invoice/minvoice.min.js',
+    '/table2excel.js',
+    '/js/Camera/index.min.js',
+    '/js/ThirdParty/DocSys/CustConnect.js',
+    '/js/ThirdParty/DocSys/SampleData.js',
+    '/js/Todo/Todo_Detail.js',
+    '/js/Labo/LaboPopup.js',
+    '/js/customjs/custom-font-size.js',
+    '/assests/dist/Calloutside/calloutside.js',
+    '/assests/dist/Popperjs/tippy-bundle.umd.min.js',
+    '/js/comon/load_customer.js',
+    '/js/customjs/custom-dropdown.js',
+    '/js/comon/print.js',
+    '/js/comon/customerimage2.js',
+    '/js/AppCustomer/FileUpload.js',
+    '/js/comon/initialize_setting.js',
+    '/assests/dist/SemanticUI/form.min.js',
+    "/js/comon/html2canvas.js",
+    "/js/Excel/lib/exceljs.min.js",
+    "/js/TableToExcel/TableToExcel.js",
+    "/js/ExportFormat/WordExporter.js",
+    '/js/Bundle/bundle.ini.min.js',
+    '/js/Bundle/bundle.header.min.js',
+    '/js/Bundle/bundle.footer.min.js',
+    '/js/SMS/SMSGeneral.js'
+];
+const serwork_css = [
+    '/assests/Error/css/style.css',
+    '/css/scrollbar.css',
+    '/assests/dist/ColorPicker/spectrum.css',
+    '/css/master1.css',
+    '/css/responsive.css',
+    '/css/sunmoon.css',
+    '/css/root_element_color.css',
+    '/css/root_element_grid.css',
+    '/assets/css/nucleo-icons.css',
+    '/assets/css/nucleo-svg.css',
+    '/assests/dist/FontAwesome/css/all.min.css',
+    '/assests/icon/dist/css/font.css',
+    '/css/main.custom.css',
+    '/css/button.css',
+    '/assests/dist/plugins/pacejs/pace.css',
+    '/assests/dist/plugins/sweetalert2/sweetalert2.min.css',
+    '/assests/dist/flatpickr/flatpickr.min.css',
+    '/assests/dist/MultiColumnCombo/jquery.inputpicker.css',
+    '/assests/dist/UploadJS/css/jquery.fileupload.css',
+    '/assests/dist/UploadJS/css/jquery.fileupload-ui.css',
+    '/assests/dist/Guide/enjoyhint.css',
+    '/assests/dist/Phone/css/intlTelInput.css',
+    '/css/main_customer.css',
+    '/js/Calendar_Custom/calendar.css',
+    '/js/Timeline/css/timeslider.css',
+    '/js/Calendar_Custom/jquery-ui.css',
+    '/assets/css/soft-ui-dashboard.css',
+    '/assests/dist/semantic.min.css',
+    '/assests/dist/semantic.min.custom.css',
+    '/assests/dist/css/main.css',
+    '/assests/dist/plugins/trumbowyg/ui/trumbowyg.css',
+    '/plugins/tinymce/skins/lightgray/skin.min.css',
+    '/assests/dist/flatpickr/plugins/monthSelect/style.css',
+    '/css/ticketaction.css',
+    '/assests/dist/css/chat-page.css',
+    '/assests/dist/PriceRange/price_range_style.css',
+    '/assests/dist/JsonFormatter/json-formatter.min.css',
+    '/assests/dist/lightGallery/css/lg-zoom.css',
+    '/assests/dist/lightGallery/css/lg-rotate.css',
+    '/assests/dist/lightGallery/css/lg-share.css',
+    '/assests/dist/lightGallery/css/lightgallery.css',
+    "/assests/dist/Timeline/time.css",
+    "/css/master.css",
+    "/css/dark-mode.css"
+];
+const serwork_data = [
+    ...serwork_js,
+    ...serwork_css
+];
+//#endregion
+function serworker_ini(files = [], version = 'v1', name = 'cache', onDone) {
+    if (!('serviceWorker' in navigator)) {
+        alert('Trình duyệt của bạn không hỗ trợ Service Worker. Vui lòng dùng trình duyệt mới hơn.');
+        return;
+    }
+
+    files = files.map(f => StaticLink_Convert(f));
+    navigator.serviceWorker.register('/sw2.js').then((reg) => {
+        navigator.serviceWorker.addEventListener('message', (event) => {
+            if (event.data?.type === 'CACHE_DONE') {
+                static_log('Cache xong version:', event.data.version);
+                onDone?.();
+            }
+        });
+
+        const message = {
+            type: 'INIT_CACHE',
+            payload: {
+                files,
+                version,
+                VD_ISDEV,
+                name
+            }
+        };
+
+        const sendToWorker = (worker) => {
+            if (worker?.state === 'activated') {
+                worker.postMessage(message);
+            } else {
+                worker.addEventListener('statechange', () => {
+                    if (worker.state === 'activated') {
+                        worker.postMessage(message);
+                    }
+                });
+            }
+        };
+
+        if (reg.active) {
+            sendToWorker(reg.active);
+        } else {
+            navigator.serviceWorker.ready.then((readyReg) => {
+                if (readyReg.active) {
+                    sendToWorker(readyReg.active);
+                }
+            });
+        }
+    }).catch((err) => {
+        static_log('Lỗi khi đăng ký service worker:', err);
+        static_log('Không thể đăng ký Service Worker. Hãy thử tải lại trang hoặc kiểm tra trình duyệt.');
+    });
+}

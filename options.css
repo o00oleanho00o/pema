@@ -1,0 +1,15 @@
+:root { font-family: "Segoe UI", Tahoma, sans-serif; color: #17221b; background: #f3f7f4; }
+body { margin: 0; }
+main { max-width: 720px; margin: 0 auto; padding: 28px 18px; }
+h1 { margin-top: 0; }
+.panel { margin: 16px 0; padding: 18px; border: 1px solid #cbd8ce; border-radius: 8px; background: #fff; }
+h2 { margin: 0 0 10px; font-size: 17px; }
+.muted { color: #526158; }
+button { margin-left: 8px; padding: 9px 13px; border: 0; border-radius: 6px; background: #176b43; color: #fff; font-weight: 700; cursor: pointer; }
+button:disabled { opacity: .5; }
+label { display: block; margin: 12px 0; }
+input[type=range] { width: 260px; vertical-align: middle; }
+dl { display: grid; grid-template-columns: 1fr 1fr; gap: 7px 20px; }
+dt { color: #526158; } dd { margin: 0; font-weight: 700; }
+#result { min-height: 20px; }
+#result.error { color: #a32626; }

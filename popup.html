@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="vi">
+  <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Tách đơn</title><link rel="stylesheet" href="styles.css"></head>
+  <body>
+    <main>
+      <header class="app-header"><div><h1>TÁCH ĐƠN</h1><p>Đọc DOM cục bộ · không sửa dữ liệu clinic</p></div><button id="settingsButton" class="icon-button" type="button" title="Cài đặt danh mục">⚙</button></header>
+      <section class="catalog-bar"><span id="catalogStatus">Chưa có danh mục local</span><button id="importButton" type="button">Import danh sách</button><input id="catalogFile" type="file" accept=".xlsx" hidden></section>
+      <button id="readButton" class="primary" type="button">Đọc đơn hiện tại</button>
+      <section id="patientSummary" class="patient-summary" hidden></section>
+      <section id="itemsSection" hidden><h2>Sản phẩm</h2><div id="itemsList"></div><div id="routeSummary" class="route-summary"></div></section>
+      <div class="main-actions"><button id="previewButton" type="button" disabled>Xem trước</button><button id="copyButton" type="button" disabled>Copy JSON</button></div>
+      <details><summary>Chi tiết kỹ thuật</summary><textarea id="technicalOutput" readonly spellcheck="false"></textarea></details>
+      <p id="status" role="status" aria-live="polite"></p>
+    </main>
+    <script src="jszip.min.js"></script><script src="catalog.js"></script><script src="xlsx-importer.js"></script><script src="popup.js"></script>
+  </body>
+</html>

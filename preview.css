@@ -1,0 +1,61 @@
+@page { size: A5 landscape; margin: 6mm 15mm; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: #e8eaed; color: #1d3e6b; font-family: Arial, sans-serif; }
+body { min-height: 100vh; }
+.toolbar { position: sticky; top: 0; z-index: 2; display: flex; gap: 8px; align-items: center; justify-content: center; padding: 10px; background: #f5f6f8; color: #526171; font-size: 13px; }
+.toolbar button { padding: 8px 12px; border: 0; border-radius: 5px; background: #27335a; color: #fff; font-weight: 700; cursor: pointer; }
+.toolbar button.secondary { background: #176b43; }
+.toolbar button:disabled { opacity: .45; cursor: not-allowed; }
+#documents { display: flex; flex-direction: column; align-items: center; gap: 18px; padding: 18px; }
+.document-set { display: flex; flex-direction: column; gap: 8px; width: 210mm; }
+.document-label { color: #526171; font-size: 12px; font-weight: 700; }
+.print-page { position: relative; width: 210mm; min-height: 148mm; padding: 6mm 15mm; overflow: visible; background: #fff; font-size: 13px; line-height: 1.25; }
+.original-header { flex: 0 0 auto; min-height: 0; }
+.identity-row { display: grid; grid-template-columns: 86px 1fr 50mm; align-items: start; min-height: 26mm; }
+.logo-cell { display: flex; align-items: center; justify-content: center; width: 86px; height: 43px; border-right: 2px solid #1d3e6b; }
+.logo-cell img { width: 86px; height: 43px; object-fit: contain; }
+.clinic-column { min-width: 0; }
+.clinic-cell { padding-left: 6px; }
+.clinic-name { margin-top: .5mm; font-size: 14px; font-weight: 700; }
+.clinic-slogan { margin-top: 1px; font-size: 13px; }
+.specialties { width: 50mm; height: 26mm; object-fit: contain; object-position: top center; }
+.contact-row { display: flex; gap: 6px; align-items: flex-start; margin-top: .5mm; }
+.contact-icon { width: 14px; text-align: center; font-weight: 700; }
+.address-row { max-width: 79mm; }
+.print-title { margin: 1mm 0; padding-bottom: 1mm; border-bottom: 2px solid #1d3e6b; text-align: center; font-size: 22px; line-height: 1.05; }
+.patient-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 1px solid #1d3e6b; border-bottom: 1px solid #1d3e6b; }
+.patient-grid > div { min-height: 5.5mm; padding: 1px 4px; border-bottom: 1px solid #8fa1b8; }
+.patient-grid > div:nth-child(odd) { border-right: 1px solid #1d3e6b; }
+.patient-grid > div:nth-child(4) { border-right: 0; }
+.patient-grid .diagnosis { grid-column: 1 / -1; border-right: 0; }
+.patient-grid span { font-weight: 400; }
+.gender-cell { display: flex; align-items: center; gap: 7px; }
+.gender-option { display: inline-flex; align-items: center; gap: 3px; }
+.gender-box { display: inline-block; width: 4.5mm; height: 4.5mm; border: 1px solid #1d3e6b; background: #fff; }
+.gender-box.checked { position: relative; background: #1d3e6b; }
+.gender-box.checked::after { content: ""; position: absolute; left: 1.2mm; top: .4mm; width: 1.5mm; height: 2.5mm; border: solid #fff; border-width: 0 1px 1px 0; transform: rotate(45deg); }
+.item-list { padding-top: 2.5mm; overflow: visible; }
+.print-item { margin-bottom: 3mm; break-inside: avoid; page-break-inside: avoid; }
+.item-line { display: grid; grid-template-columns: 9mm 1fr 26mm; column-gap: 2mm; align-items: start; }
+.item-number { text-align: right; }
+.item-name { overflow-wrap: anywhere; }
+.item-quantity { white-space: nowrap; }
+.item-usage { margin: 1mm 0 0 11mm; min-height: 4mm; }
+.print-footer { display: grid; grid-template-columns: minmax(0, 1.35fr) 22mm minmax(0, 1fr); gap: 3mm; margin-top: 1mm; border-top: 2px solid #1d3e6b; padding-top: 2mm; font-size: 11px; line-height: 1.2; break-inside: avoid; page-break-inside: avoid; }
+.footer-label { display: block; margin-bottom: 1mm; font-size: 12px; }
+.notes { overflow-wrap: anywhere; }
+.qr-cell { display: flex; flex-direction: column; align-items: center; gap: 1mm; text-align: center; }
+.qr-cell img { width: 17mm; height: 17mm; object-fit: contain; }
+.signature { text-align: center; }
+body[data-print-filter="prescription"] [data-doc="consultation"], body[data-print-filter="consultation"] [data-doc="prescription"] { display: none; }
+@media print {
+  html, body { background: #fff; }
+  .toolbar, .document-label { display: none; }
+  #documents { display: block; padding: 0; }
+  .document-set { display: block; width: auto; page-break-after: always; break-after: page; }
+  .document-set:last-child { page-break-after: auto; break-after: auto; }
+  body[data-print-filter="prescription"] [data-doc="prescription"], body[data-print-filter="consultation"] [data-doc="consultation"] { page-break-after: auto; break-after: auto; }
+  .print-page { width: auto; min-height: 0; padding: 0; overflow: visible; box-shadow: none; }
+  .original-header, .print-title, .patient-grid { break-inside: avoid; page-break-inside: avoid; }
+}
+@media screen { .print-page { box-shadow: 0 1px 8px rgba(0, 0, 0, .18); } }
