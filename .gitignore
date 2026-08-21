@@ -10,3 +10,4 @@ audit-preview*.pdf
 /.tmp-*.png
 /tmp-*.pdf
 test-*.out
+/release/
